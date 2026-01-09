@@ -1,0 +1,58 @@
+(* test_maps.ml *)
+open Maps
+module M = Map
+
+let () =
+  let open M in
+  (* reference your implementation *)
+  let test name f =
+    try
+      f ();
+      Printf.printf "[PASS] %s\n%!" name
+    with
+    | Failure msg -> Printf.printf "[FAIL] %s: %s\n%!" name msg
+    | Assert_failure (file, line, col) ->
+        Printf.printf "[FAIL] %s: assertion failed at %s:%d:%d\n%!" name file
+          line col
+    | e ->
+        Printf.printf "[FAIL] %s: unexpected exception %s\n%!" name
+          (Printexc.to_string e)
+  in
+
+  (* Define tests *)
+  let tests =
+    [
+      ("empty bindings", fun () -> ignore (M.bindings M.empty));
+      ( "insert and find",
+        fun () ->
+          let m = M.insert "a" 1 M.empty in
+          assert (M.find "a" m = Some 1) );
+      ( "insert overwrite",
+        fun () ->
+          let m = M.insert "a" 1 M.empty in
+          let m = M.insert "a" 42 m in
+          assert (M.find "a" m = Some 42) );
+      ( "remove",
+        fun () ->
+          let m = M.insert "a" 1 M.empty in
+          let m = M.remove "a" m in
+          assert (M.find "a" m = None) );
+      ( "of_list",
+        fun () ->
+          let m = M.of_list [ ("x", 10); ("y", 20) ] in
+          assert (M.find "x" m = Some 10);
+          assert (M.find "y" m = Some 20) );
+      ( "of_list duplicate raises",
+        fun () ->
+          let raised =
+            try
+              let _ = M.of_list [ ("x", 1); ("x", 2) ] in
+              false
+            with Failure _ -> true
+          in
+          assert raised );
+    ]
+  in
+
+  (* Run tests *)
+  List.iter (fun (name, f) -> test name f) tests
