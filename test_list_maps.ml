@@ -1,6 +1,6 @@
 (* test_maps.ml *)
 open Maps
-module M = Map
+module M = ListMap
 
 let () =
   let open M in

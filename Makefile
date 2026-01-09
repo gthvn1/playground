@@ -2,13 +2,13 @@
 
 SRC := $(wildcard *.ml *.mli)
 
-run: test_maps
-	./test_maps
+run: test_list_maps
+	./test_list_maps
 
-test_maps:
+test_list_maps: $(SRC)
 	ocamlc -c maps_interface.mli
 	ocamlc -c maps.ml
-	ocamlc -o test_maps maps.cmo test_maps.ml
+	ocamlc -o test_list_maps maps.cmo test_list_maps.ml
 
 fmt:
 	for f in $(SRC); do \

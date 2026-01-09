@@ -1,7 +1,7 @@
-module Map : Maps_interface.Map = struct
-  type ('k, 'v) t = unit (* placeholder type *)
+module ListMap : Maps_interface.Map = struct
+  type ('k, 'v) t = ('k* 'v) list (* placeholder type *)
 
-  let empty = failwith "Maps.empty not implemented"
+  let empty = []
   let insert _ _ _ = failwith "Maps.insert not implemented"
   let find _ _ = failwith "Maps.find not implemented"
   let remove _ _ = failwith "Maps.remove not implemented"
