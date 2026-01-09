@@ -1,0 +1,4 @@
+- clean: `git clean -fx`
+- run: `make run`
+- utop: `make utop`
+- fmt: `make fmt`

@@ -1,4 +1,4 @@
-.PHONY: run fmt
+.PHONY: run fmt utop
 
 SRC := $(wildcard *.ml *.mli)
 
