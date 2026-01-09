@@ -1,4 +1,4 @@
-.PHONY: run fmt utop
+.PHONY: run fmt utop clean
 
 SRC := $(wildcard *.ml *.mli)
 
@@ -17,3 +17,6 @@ fmt:
 	for f in $(SRC); do \
 		ocamlformat $$f --inplace --enable-outside-detected-project; \
 	done
+
+clean:
+	git clean -fx
