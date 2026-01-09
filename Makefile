@@ -10,6 +10,9 @@ test_list_maps: $(SRC)
 	ocamlc -c maps.ml
 	ocamlc -o test_list_maps maps.cmo test_list_maps.ml
 
+utop: test_list_maps
+	utop -init .utopinit
+
 fmt:
 	for f in $(SRC); do \
 		ocamlformat $$f --inplace --enable-outside-detected-project; \
