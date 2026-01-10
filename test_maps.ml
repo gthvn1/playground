@@ -1,10 +1,5 @@
 (* test_maps.ml *)
-open Impl_maps_list
-module M = ListMap
-
-let () =
-  let open M in
-  (* reference your implementation *)
+module MakeTests (M: Maps_interface.Map) = struct
   let test name f =
     try
       f ();
@@ -17,7 +12,6 @@ let () =
     | e ->
         Printf.printf "[FAIL] %s: unexpected exception %s\n%!" name
           (Printexc.to_string e)
-  in
 
   (* Define tests *)
   let tests =
@@ -52,7 +46,14 @@ let () =
           in
           assert raised );
     ]
-  in
 
   (* Run tests *)
-  List.iter (fun (name, f) -> test name f) tests
+  let run () =
+        List.iter (fun (name, f) -> test name f) tests
+end
+
+module ListMapTests = MakeTests(Impl_maps_list.ListMap)
+
+let () =
+        Printf.printf "\nTesting ListMap\n";
+        ListMapTests.run ()

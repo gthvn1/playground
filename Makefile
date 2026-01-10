@@ -8,7 +8,7 @@ run: test_maps_list
 test_maps_list: $(SRC)
 	ocamlc -c maps_interface.mli
 	ocamlc -c impl_maps_list.ml
-	ocamlc -o test_maps_list impl_maps_list.cmo test_maps_list.ml
+	ocamlc -o test_maps impl_maps_list.cmo test_maps.ml
 
 utop: test_maps_list
 	utop -init .utopinit
