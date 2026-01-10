@@ -5,7 +5,7 @@ SRC := $(wildcard *.ml *.mli)
 run: test_maps
 	./test_maps
 
-test_maps: maps_interface.mli impl_maps_list.ml impl_maps_array.ml
+test_maps: test_maps.ml maps_interface.mli impl_maps_list.ml impl_maps_array.ml
 	ocamlc -c maps_interface.mli
 	ocamlc -c impl_maps_list.ml
 	ocamlc -c impl_maps_array.ml

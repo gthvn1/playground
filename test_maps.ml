@@ -52,7 +52,11 @@ module MakeTests (M : Maps_interface.Map) = struct
 end
 
 module ListMapTests = MakeTests (Impl_maps_list.ListMap)
+module ArrayMapTests = MakeTests (Impl_maps_array.ArrayMap)
 
 let () =
   Printf.printf "\nTesting ListMap\n";
-  ListMapTests.run ()
+  ListMapTests.run ();
+
+  Printf.printf "\nTesting ArrayMap\n";
+  ArrayMapTests.run ()
