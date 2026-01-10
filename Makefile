@@ -2,15 +2,15 @@
 
 SRC := $(wildcard *.ml *.mli)
 
-run: test_list_maps
-	./test_list_maps
+run: test_maps_list
+	./test_maps_list
 
-test_list_maps: $(SRC)
+test_maps_list: $(SRC)
 	ocamlc -c maps_interface.mli
-	ocamlc -c maps.ml
-	ocamlc -o test_list_maps maps.cmo test_list_maps.ml
+	ocamlc -c impl_maps_list.ml
+	ocamlc -o test_maps_list impl_maps_list.cmo test_maps_list.ml
 
-utop: test_list_maps
+utop: test_maps_list
 	utop -init .utopinit
 
 fmt:

@@ -1,5 +1,5 @@
 (* test_maps.ml *)
-open Maps
+open Impl_maps_list
 module M = ListMap
 
 let () =
