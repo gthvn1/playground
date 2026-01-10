@@ -1,5 +1,5 @@
 (* test_maps.ml *)
-module MakeTests (M: Maps_interface.Map) = struct
+module MakeTests (M : Maps_interface.Map) = struct
   let test name f =
     try
       f ();
@@ -48,12 +48,11 @@ module MakeTests (M: Maps_interface.Map) = struct
     ]
 
   (* Run tests *)
-  let run () =
-        List.iter (fun (name, f) -> test name f) tests
+  let run () = List.iter (fun (name, f) -> test name f) tests
 end
 
-module ListMapTests = MakeTests(Impl_maps_list.ListMap)
+module ListMapTests = MakeTests (Impl_maps_list.ListMap)
 
 let () =
-        Printf.printf "\nTesting ListMap\n";
-        ListMapTests.run ()
+  Printf.printf "\nTesting ListMap\n";
+  ListMapTests.run ()
