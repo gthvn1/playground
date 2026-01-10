@@ -1,0 +1,5 @@
+(executable
+ (name test_maps)
+ (modules_without_implementation maps_interface)
+ (modules test_maps impl_maps_list impl_maps_array maps_interface)
+ (libraries alcotest))

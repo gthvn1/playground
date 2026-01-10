@@ -1,4 +1,5 @@
 (* test_maps.ml *)
+
 module MakeTests (M : Maps_interface.Map) = struct
   let test name f =
     try
