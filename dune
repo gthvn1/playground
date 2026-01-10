@@ -1,6 +1,6 @@
 (library
-  (name maps)
-  (modules maps))
+ (name maps)
+ (modules maps))
 
 (executable
  (name test_maps)

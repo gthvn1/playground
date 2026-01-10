@@ -40,9 +40,95 @@ module ListMap : Map = struct
   let remove k m = List.filter (fun (k', _) -> k <> k') m
   let empty = []
   let of_list l = l
-  let bindings m = List.fold_left (fun acc (k, v) -> 
-          match List.find_opt (fun (k',_) -> k' = k) acc with
-          | None -> insert k v acc
-          | Some(_) -> raise (Failure "Duplicated keys")
-  ) [] m
+
+  let bindings m =
+    List.fold_left
+      (fun acc (k, v) ->
+        match List.find_opt (fun (k', _) -> k' = k) acc with
+        | None -> insert k v acc
+        | Some _ -> raise (Failure "Duplicated keys"))
+      [] m
+end
+
+(* ------------------------------------------------------------------ *)
+
+module type TableMap = sig
+  type ('k, 'v) t
+  (** [('k, 'v) t] is the type of mutable table-based maps that bind keys of
+      type ['k] to values of type ['v]. *)
+
+  val insert : 'k -> 'v -> ('k, 'v) t -> unit
+  (** [insert k v m] mutates map [m] to bind [k] to [v]. If [k] was already
+      bound in [m], that binding is replaced by the binding to [v]. *)
+
+  val find : 'k -> ('k, 'v) t -> 'v option
+  (** [find k m] is [Some v] if [m] binds [k] to [v], and [None] if [m] does not
+      bind [k]. *)
+
+  val remove : 'k -> ('k, 'v) t -> unit
+  (** [remove k m] mutates [m] to remove any binding of [k]. If [k] was not
+      bound in [m], the map is unchanged. *)
+
+  val create : ('k -> int) -> int -> ('k, 'v) t
+  (** [create hash c] creates a new table map with capacity [c] that will use
+      [hash] as the function to convert keys to integers. Requires: The output
+      of [hash] is always non-negative, and [hash] runs in constant time. *)
+
+  val bindings : ('k, 'v) t -> ('k * 'v) list
+  (** [bindings m] is an association list containing the same bindings as [m].
+  *)
+
+  val of_list : ('k -> int) -> ('k * 'v) list -> ('k, 'v) t
+  (** [of_list hash lst] creates a map with the same bindings as [lst], using
+      [hash] as the hash function. Requires: [lst] does not contain any
+      duplicate keys. *)
+end
+
+module HashMap : TableMap = struct
+  type ('k, 'v) t = {
+    hash : 'k -> int;
+    mutable size : int;
+    mutable buckets : ('k * 'v) list array;
+  }
+
+  let create hash capacity =
+    { hash; size = 0; buckets = Array.make capacity [] }
+
+  let capacity tab = Array.length tab.buckets
+  let index k tab = tab.hash k mod capacity tab
+
+  let insert_no_resize k v tab =
+    let b = index k tab in
+    let old_bucket = tab.buckets.(b) in
+    tab.buckets.(b) <- (k, v) :: List.remove_assoc k old_bucket;
+    if not (List.mem_assoc k old_bucket) then tab.size <- tab.size + 1;
+    ()
+
+  let load_factor tab = float_of_int tab.size /. float_of_int (capacity tab)
+
+  let rehash tab new_capacity =
+    let rehash_binding (k, v) = insert_no_resize k v tab in
+    let rehash_bucket b = List.iter rehash_binding b in
+
+    let old_buckets = tab.buckets in
+    tab.buckets <- Array.make new_capacity [];
+    tab.size <- 0;
+
+    Array.iter rehash_bucket old_buckets;
+    ()
+
+  let resize_if_needed tab =
+    let lf = load_factor tab in
+    if lf > 2.0 then rehash tab (capacity tab * 2)
+    else if lf < 0.5 then rehash tab (capacity tab / 2)
+    else ()
+
+  let insert k v tab =
+    insert_no_resize k v tab;
+    resize_if_needed tab
+
+  let find _ _ = failwith "find not implemented"
+  let remove _ _ = failwith "remove not implemented"
+  let bindings _ = failwith "bindings not implemented"
+  let of_list _ _ = failwith "of_list not implemented"
 end
