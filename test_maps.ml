@@ -1,44 +1,34 @@
 (* test_maps.ml *)
 
 module MakeTests (M : Maps_interface.Map) = struct
-  let run test_name =
+  let tests =
     let open Alcotest in
-    run test_name
-      [
-        ( "Maps",
-          [
-            test_case "empty bindings" `Quick (fun () ->
-                ignore (M.bindings M.empty));
-            test_case "insert and find" `Quick (fun () ->
-                let m = M.insert "a" 1 M.empty in
-                assert (M.find "a" m = Some 1));
-            test_case "insert overwrite" `Quick (fun () ->
-                let m = M.insert "a" 1 M.empty in
-                let m = M.insert "a" 42 m in
-                assert (M.find "a" m = Some 42));
-            test_case "remove" `Quick (fun () ->
-                let m = M.insert "a" 1 M.empty in
-                let m = M.remove "a" m in
-                assert (M.find "a" m = None));
-            test_case "of_list" `Quick (fun () ->
-                let m = M.of_list [ ("x", 10); ("y", 20) ] in
-                assert (M.find "x" m = Some 10);
-                assert (M.find "y" m = Some 20));
-            test_case "of_list duplicate raises" `Quick (fun () ->
-                let raised =
-                  try
-                    let _ = M.of_list [ ("x", 1); ("x", 2) ] in
-                    false
-                  with Failure _ -> true
-                in
-                assert raised);
-          ] );
-      ]
+    [
+      test_case "empty bindings" `Quick (fun () -> ignore (M.bindings M.empty));
+      test_case "insert and find" `Quick (fun () ->
+          let m = M.insert "a" 1 M.empty in
+          check (option int) "find a" (Some 1) (M.find "a" m));
+      test_case "insert overwrite" `Quick (fun () ->
+          let m = M.insert "a" 1 M.empty in
+          let m = M.insert "a" 42 m in
+          check (option int) "find a" (Some 42) (M.find "a" m));
+      test_case "remove" `Quick (fun () ->
+          let m = M.insert "a" 1 M.empty in
+          let m = M.remove "a" m in
+          check (option int) "find a" None (M.find "a" m));
+      test_case "of_list" `Quick (fun () ->
+          let m = M.of_list [ ("x", 10); ("y", 20) ] in
+          check (option int) "find a" (Some 10) (M.find "x" m);
+          check (option int) "find a" (Some 20) (M.find "y" m));
+      test_case "of_list duplicate raises" `Quick (fun () ->
+          check_raises "duplicate keys raise failure" (Failure "of_list")
+            (fun () -> ignore (M.of_list [ ("x", 1); ("x", 2) ])));
+    ]
 end
 
 module ListMapTests = MakeTests (Impl_maps_list.ListMap)
 module ArrayMapTests = MakeTests (Impl_maps_array.ArrayMap)
 
 let () =
-  ListMapTests.run "ListMap";
-  ArrayMapTests.run "ArrayMap"
+  Alcotest.run "Maps"
+    [ ("ListMap", ListMapTests.tests); ("ArrayMap", ArrayMapTests.tests) ]
