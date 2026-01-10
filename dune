@@ -1,4 +1,8 @@
+(library
+  (name maps)
+  (modules maps))
+
 (executable
  (name test_maps)
- (modules test_maps maps)
- (libraries alcotest))
+ (modules test_maps)
+ (libraries maps alcotest))
