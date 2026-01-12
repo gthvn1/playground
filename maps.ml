@@ -127,8 +127,19 @@ module HashMap : TableMap = struct
     insert_no_resize k v tab;
     resize_if_needed tab
 
-  let find _ _ = failwith "find not implemented"
-  let remove _ _ = failwith "remove not implemented"
+  let find k tab =
+    let b = index k tab in
+    let bucket = tab.buckets.(b) in
+    List.assoc_opt k bucket
+
+  let remove k tab =
+    let b = index k tab in
+    let old_bucket = tab.buckets.(b) in
+    tab.buckets.(b) <- List.remove_assoc k old_bucket;
+    if List.mem_assoc k old_bucket then
+            tab.size <- tab.size - 1;
+    ()
+
   let bindings _ = failwith "bindings not implemented"
   let of_list _ _ = failwith "of_list not implemented"
 end
