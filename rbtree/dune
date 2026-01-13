@@ -1,0 +1,8 @@
+(library
+ (name tree)
+ (modules tree))
+
+(executable
+ (name main)
+ (modules main)
+ (libraries tree alcotest))
