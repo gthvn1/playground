@@ -1,4 +1,6 @@
 (* https://cs3110.github.io/textbook/chapters/ds/rb.html *)
+(* https://courses.cs.cornell.edu/cs3110/2021sp/textbook/eff/bst.html *)
+
 module type Tree = sig
   type 'a t
 
@@ -16,13 +18,22 @@ end
 module BinarySearchTree : Tree = struct
   type 'a t = Node of 'a * 'a t * 'a t | Leaf
 
-  let rec insert v t =
-    match t with
+  let rec insert v = function
     | Leaf -> Node (v, Leaf, Leaf)
-    | Node (v', l, r) ->
-        if v < v' then Node (v', insert v l, r) else Node (v', l, insert v r)
+    | Node (v', l, r) when v < v' -> Node (v', insert v l, r)
+    | Node (v', l, r) when v > v' -> Node (v', l, insert v r)
+    | t -> t (* case where v = v' *)
 
-  let remove _ _ = failwith "not implemented"
+  let rec remove (v : 'a) (t : 'a t) : 'a t =
+    match t with
+    | Leaf -> Leaf
+    | Node (v', Leaf, Leaf) when v' = v -> Leaf
+    | Node (v', Leaf, r) when v' = v -> r
+    | Node (v', l, Leaf) when v' = v -> l
+    | Node (v', _l, _r) when v' = v -> failwith "todo"
+    | Node (v', l, r) ->
+        if v < v' then Node (v, remove v' l, r) else Node (v, l, remove v' r)
+
   let empty = Leaf
 
   let rec inorder t : 'a list =
