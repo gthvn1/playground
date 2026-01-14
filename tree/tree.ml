@@ -48,6 +48,9 @@ module BinarySearchTree : Tree = struct
 
   let empty = Leaf
 
+  (* TODO: use a more efficient tail recursive inorder.
+     This naive implementation is O(n^2) ... ouch
+   *)
   let rec inorder t : 'a list =
     match t with Leaf -> [] | Node (v, l, r) -> inorder l @ [ v ] @ inorder r
 
