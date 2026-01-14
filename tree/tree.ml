@@ -4,10 +4,11 @@
 module type Tree = sig
   type 'a t
 
+  val empty : 'a t
   val insert : 'a -> 'a t -> 'a t
   val remove : 'a -> 'a t -> 'a t
-  val empty : 'a t
   val inorder : 'a t -> 'a list
+  val dump : string -> int t -> unit
 end
 
 (* A node is a key with a left node and right node.
@@ -38,6 +39,36 @@ module BinarySearchTree : Tree = struct
 
   let rec inorder t : 'a list =
     match t with Leaf -> [] | Node (v, l, r) -> inorder l @ [ v ] @ inorder r
+
+  let dump fname bst =
+    let oc = Out_channel.open_text fname in
+    Out_channel.output_string oc "strict graph {\n";
+
+    let rec aux = function
+      | Leaf -> ()
+      | Node (v, l, r) ->
+          (match l with
+          | Node (v', _, _) ->
+              let s = Printf.sprintf "%d -- %d\n" v v' in
+              Out_channel.output_string oc s
+          | Leaf ->
+              let s = Printf.sprintf "%d -- l_%d\n" v v in
+              Out_channel.output_string oc s);
+
+          (match r with
+          | Node (v', _, _) ->
+              let s = Printf.sprintf "%d -- %d\n" v v' in
+              Out_channel.output_string oc s
+          | Leaf ->
+              let s = Printf.sprintf "%d -- r_%d\n" v v in
+              Out_channel.output_string oc s);
+
+          aux l;
+          aux r
+    in
+    aux bst;
+    Out_channel.output_string oc "}";
+    Out_channel.close oc
 end
 
 module RBTree : Tree = struct
@@ -46,5 +77,6 @@ module RBTree : Tree = struct
   let insert _ _ = failwith "not implemented"
   let remove _ _ = failwith "not implemented"
   let inorder _ = failwith "not implemented"
+  let dump _ = failwith "not implemented"
   let empty = ()
 end
