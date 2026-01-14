@@ -9,6 +9,7 @@ module type Tree = sig
   val remove : 'a -> 'a t -> 'a t
   val inorder : 'a t -> 'a list
   val dump : string -> int t -> unit
+  val find_min : 'a t -> 'a option
 end
 
 (* A node is a key with a left node and right node.
@@ -25,13 +26,23 @@ module BinarySearchTree : Tree = struct
     | Node (v', l, r) when v > v' -> Node (v', l, insert v r)
     | t -> t (* case where v = v' *)
 
+  (* [find_min t] returns the minimal value in the tree *)
+  let rec find_min (t : 'a t) : 'a option =
+    match t with
+    | Leaf -> None
+    | Node (v, Leaf, _) -> Some v
+    | Node (_, l, _) -> find_min l
+
   let rec remove (v : 'a) (t : 'a t) : 'a t =
     match t with
     | Leaf -> Leaf
     | Node (v', Leaf, Leaf) when v' = v -> Leaf
     | Node (v', Leaf, r) when v' = v -> r
     | Node (v', l, Leaf) when v' = v -> l
-    | Node (v', _l, _r) when v' = v -> failwith "todo..."
+    | Node (v', l, r) when v' = v -> (
+        match find_min r with
+        | None -> failwith "unreachable"
+        | Some m -> Node (m, l, remove m r))
     | Node (v', l, r) ->
         if v < v' then Node (v', remove v l, r) else Node (v', l, remove v r)
 
@@ -74,9 +85,10 @@ end
 module RBTree : Tree = struct
   type 'a t = unit
 
+  let empty = ()
   let insert _ _ = failwith "not implemented"
   let remove _ _ = failwith "not implemented"
   let inorder _ = failwith "not implemented"
   let dump _ = failwith "not implemented"
-  let empty = ()
+  let find_min _ = failwith "not implemented"
 end
