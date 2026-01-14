@@ -31,9 +31,9 @@ module BinarySearchTree : Tree = struct
     | Node (v', Leaf, Leaf) when v' = v -> Leaf
     | Node (v', Leaf, r) when v' = v -> r
     | Node (v', l, Leaf) when v' = v -> l
-    | Node (v', _l, _r) when v' = v -> failwith "todo"
+    | Node (v', _l, _r) when v' = v -> failwith "todo..."
     | Node (v', l, r) ->
-        if v < v' then Node (v, remove v' l, r) else Node (v, l, remove v' r)
+        if v < v' then Node (v', remove v l, r) else Node (v', l, remove v r)
 
   let empty = Leaf
 
