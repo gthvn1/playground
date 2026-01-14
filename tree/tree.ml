@@ -2,14 +2,24 @@
 (* https://courses.cs.cornell.edu/cs3110/2021sp/textbook/eff/bst.html *)
 
 module type Tree = sig
-  type 'a t
+  type elt
+  type t
 
-  val empty : 'a t
-  val insert : 'a -> 'a t -> 'a t
-  val remove : 'a -> 'a t -> 'a t
-  val inorder : 'a t -> 'a list
-  val dump : string -> int t -> unit
-  val find_min : 'a t -> 'a option
+  val empty : t
+  val insert : elt -> t -> t
+  val remove : elt -> t -> t
+  val inorder : t -> elt list
+  val dump : string -> t -> unit
+  val find_min : t -> elt option
+end
+
+(* For simplicity also add to_string here instead of creating
+   a "Show" interface *)
+module type Ordered = sig
+  type t
+
+  val compare : t -> t -> int
+  val to_string : t -> string
 end
 
 (* A node is a key with a left node and right node.
@@ -17,36 +27,43 @@ end
    less than node value,
    All nodes in the right subtree contain value strictly
    greater than node value *)
-module BinarySearchTree : Tree = struct
-  type 'a t = Node of 'a * 'a t * 'a t | Leaf
+module BinarySearchTree (Ord : Ordered) : Tree with type elt = Ord.t = struct
+  type elt = Ord.t
+  type t = Node of elt * t * t | Leaf
+
+  let empty = Leaf
 
   let rec insert v = function
     | Leaf -> Node (v, Leaf, Leaf)
-    | Node (v', l, r) when v < v' -> Node (v', insert v l, r)
-    | Node (v', l, r) when v > v' -> Node (v', l, insert v r)
-    | t -> t (* case where v = v' *)
+    | Node (v', l, r) as t ->
+        let c = Ord.compare v v' in
+        if c < 0 then Node (v', insert v l, r)
+        else if c > 0 then Node (v', l, insert v r)
+        else t (* case where v = v' *)
 
   (* [find_min t] returns the minimal value in the tree *)
-  let rec find_min (t : 'a t) : 'a option =
+  let rec find_min (t : t) : 'a option =
     match t with
     | Leaf -> None
     | Node (v, Leaf, _) -> Some v
     | Node (_, l, _) -> find_min l
 
-  let rec remove (v : 'a) (t : 'a t) : 'a t =
+  let rec remove (v : elt) (t : t) : t =
     match t with
     | Leaf -> Leaf
-    | Node (v', Leaf, Leaf) when v' = v -> Leaf
-    | Node (v', Leaf, r) when v' = v -> r
-    | Node (v', l, Leaf) when v' = v -> l
-    | Node (v', l, r) when v' = v -> (
-        match find_min r with
-        | None -> failwith "unreachable"
-        | Some m -> Node (m, l, remove m r))
-    | Node (v', l, r) ->
-        if v < v' then Node (v', remove v l, r) else Node (v', l, remove v r)
-
-  let empty = Leaf
+    | Node (v', l, r) -> (
+        let c = Ord.compare v v' in
+        if c < 0 then Node (v', remove v l, r)
+        else if c > 0 then Node (v', l, remove v r)
+        else (* We found the node to remove *)
+          match (l, r) with
+          | Leaf, Leaf -> Leaf
+          | Leaf, _ -> r
+          | _, Leaf -> l
+          | _ -> (
+              match find_min r with
+              | None -> failwith "unreachable"
+              | Some m -> Node (m, l, remove m r)))
 
   (* TODO: use a more efficient tail recursive inorder.
      This naive implementation is O(n^2) ... ouch
@@ -63,18 +80,28 @@ module BinarySearchTree : Tree = struct
       | Node (v, l, r) ->
           (match l with
           | Node (v', _, _) ->
-              let s = Printf.sprintf "%d -- %d\n" v v' in
+              let s =
+                Printf.sprintf "%s -- %s\n" (Ord.to_string v) (Ord.to_string v')
+              in
               Out_channel.output_string oc s
           | Leaf ->
-              let s = Printf.sprintf "%d -- l_%d\n" v v in
+              let s =
+                Printf.sprintf "%s -- l_%s\n" (Ord.to_string v)
+                  (Ord.to_string v)
+              in
               Out_channel.output_string oc s);
 
           (match r with
           | Node (v', _, _) ->
-              let s = Printf.sprintf "%d -- %d\n" v v' in
+              let s =
+                Printf.sprintf "%s -- %s\n" (Ord.to_string v) (Ord.to_string v')
+              in
               Out_channel.output_string oc s
           | Leaf ->
-              let s = Printf.sprintf "%d -- r_%d\n" v v in
+              let s =
+                Printf.sprintf "%s -- r_%s\n" (Ord.to_string v)
+                  (Ord.to_string v)
+              in
               Out_channel.output_string oc s);
 
           aux l;
@@ -85,8 +112,9 @@ module BinarySearchTree : Tree = struct
     Out_channel.close oc
 end
 
-module RBTree : Tree = struct
-  type 'a t = unit
+module RBTree (Ord : Ordered) : Tree = struct
+  type elt = Ord.t
+  type t = unit
 
   let empty = ()
   let insert _ _ = failwith "not implemented"
