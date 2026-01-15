@@ -11,6 +11,7 @@ module type Tree = sig
   val inorder : t -> elt list
   val dump : string -> t -> unit
   val find_min : t -> elt option
+  val balance : t -> t
 end
 
 (* For simplicity also add to_string here instead of creating
@@ -110,6 +111,22 @@ module BinarySearchTree (Ord : Ordered) : Tree with type elt = Ord.t = struct
     aux bst;
     Out_channel.output_string oc "}";
     Out_channel.close oc
+
+  let balance t =
+    let l = inorder t in
+
+    let rec aux = function
+      | [] -> Leaf
+      | l ->
+          (* split list into two *)
+          let len = List.length l in
+          let middle = len / 2 in
+          let v = List.nth l middle in
+          let left = List.take middle l in
+          let right = List.drop (middle + 1) l in
+          Node (v, aux left, aux right)
+    in
+    aux l
 end
 
 module RBTree (Ord : Ordered) : Tree = struct
@@ -122,4 +139,5 @@ module RBTree (Ord : Ordered) : Tree = struct
   let inorder _ = failwith "not implemented"
   let dump _ = failwith "not implemented"
   let find_min _ = failwith "not implemented"
+  let balance _ = failwith "unimplemented"
 end

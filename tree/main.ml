@@ -17,8 +17,14 @@ let () =
   IntBST.dump (dot_file ^ "1.dot") t;
   print_endline @@ "BinarySearchTree dumps in " ^ dot_file;
   print_endline @@ "To visualize it: dot -Tpng " ^ dot_file ^ " | display";
+
   print_newline ();
   let t = IntBST.remove 25 t in
   IntBST.dump (dot_file ^ "2.dot") t;
+
+  print_newline ();
+  let t = IntBST.balance t in
+  IntBST.dump (dot_file ^ "3.dot") t;
+
   Alcotest.run "BinarySearchTree"
     [ ("empty", [ Alcotest.test_case "call empty" `Quick test_empty ]) ]
