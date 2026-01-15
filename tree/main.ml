@@ -16,7 +16,7 @@ let () =
   let t = List.fold_left (fun bst (x : int) -> IntBST.insert x bst) t l in
   IntBST.dump (dot_file ^ "1.dot") t;
   print_endline @@ "BinarySearchTree dumps in " ^ dot_file;
-  print_endline @@ "To visualize it: dot -Tpng " ^ dot_file ^ " | xview -";
+  print_endline @@ "To visualize it: dot -Tpng " ^ dot_file ^ " | display";
   print_newline ();
   let t = IntBST.remove 25 t in
   IntBST.dump (dot_file ^ "2.dot") t;
